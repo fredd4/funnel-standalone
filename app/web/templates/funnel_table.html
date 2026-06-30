@@ -1,0 +1,51 @@
+{% if funnel %}
+<table class="table table-striped">
+    <thead>
+        <tr>
+            <th>Event</th>
+            <th>Value</th>
+            <th>Conversion</th>
+            <th>Drop-off</th>
+            <th>Median time to next step</th>
+            <th>Best answers</th>
+            <th>Next</th>
+        </tr>
+    </thead>
+    <tbody>
+        {% for event in funnel %}
+        <tr>
+            <td>
+                {% set dates = event.ab_test_dates %}
+                <a href="#" class="breakdown_by_event_value" data-event-name="{{ event.event_name }}"
+                   {% if dates %}data-first-seen="{{ dates.first }}" data-last-seen="{{ dates.last }}"{% endif %}>
+                    {{ event.event_name }}
+                </a>
+                {% if dates %}<br/><small class="text-muted">Seen: {{ dates.first }} - {{ dates.last }}</small>{% endif %}
+            </td>
+            <td>
+                {{ event.display_value|safe }}
+                <small class="text-muted">({{ event.total_occurrences|default(event.count) }})</small>
+            </td>
+            <td>{{ "%.1f"|format(event.conversion_till_event) }}%</td>
+            <td>{{ "%.1f"|format(event.dropoff) }}%</td>
+            <td>
+                {% if event.median_time_to_next_step %}{{ "%.0f"|format(event.median_time_to_next_step) }}s{% else %}-{% endif %}
+            </td>
+            <td>
+                {% for value, count in event.event_values_sorted[:8] %}{{ value }}: {{ count }}<br/>{% endfor %}
+            </td>
+            <td>
+                {% if event.dst_sorted %}
+                    <span title="{% for dst, count in event.dst_sorted %}{{ dst }}: {{ count }}&#10;{% endfor %}">
+                        {{ event.dst_sorted[0][0] }}
+                        {% if event.dst_sorted|length > 1 %}
+                            <span class="badge bg-info">+{{ event.dst_sorted|length - 1 }} more</span>
+                        {% endif %}
+                    </span>
+                {% else %}-{% endif %}
+            </td>
+        </tr>
+        {% endfor %}
+    </tbody>
+</table>
+{% endif %}

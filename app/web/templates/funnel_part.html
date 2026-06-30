@@ -1,0 +1,17 @@
+{% if status_log %}
+<h3>Status log</h3>
+<code>{% for log in status_log %}{{ log }}<br/>{% endfor %}</code>
+{% endif %}
+
+<h2>Funnel</h2>
+{% set funnel = best_funnel %}
+{% include "funnel_table.html" %}
+
+<h2>Other events</h2>
+{% set funnel = not_used_events %}
+{% include "funnel_table.html" %}
+
+{% if source_performance_data %}
+<h2>Source Performance</h2>
+{% include "funnel_source_performance.html" %}
+{% endif %}

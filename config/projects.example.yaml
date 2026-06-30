@@ -1,0 +1,96 @@
+# Per-project configuration registry.
+#
+# Copy this file to config/projects.yaml and adjust.
+#
+# Add a new block here to plug in another project — no code changes required.
+#
+# This file is the "yaml" config backend (the default). The app can also load
+# the same per-project config from Firestore instead — set CONFIG_BACKEND=firestore
+# and store one document per project (doc id == project name) in the
+# CONFIG_COLLECTION of the hosting project's Firestore. The document fields are
+# exactly the keys shown below.
+#
+# The data source is pluggable via the optional `source:` block (shown below).
+# When omitted, the flat firestore_* keys are used with source type "firestore".
+
+projects:
+  myapp:
+    # Human label shown in the UI.
+    label: "My App"
+
+    # --- Data source (plugin form, optional) ---
+    # Selects which backend serves this project's users/logs. Defaults to
+    # "firestore". Register other types in app/data_sources/registry.py.
+    #   source:
+    #     type: firestore
+    #     project_id: "your-data-project"
+    #     collection_name: "logs"
+    #     credentials_path: null        # null -> Application Default Credentials
+    #     options: {}                   # plugin-specific extras
+    #
+    # --- Firestore connection (flat form; equivalent to the block above) ---
+    firestore_project_id: "your-data-project"
+    collection_name: "logs"
+    # Path to the service-account JSON. On Cloud Run prefer mounting it from
+    # Secret Manager and pointing here, or set GOOGLE_APPLICATION_CREDENTIALS
+    # and leave this null to use Application Default Credentials.
+    credentials_path: "secrets/your-data-project.json"
+
+    timezone: "UTC"
+
+    # --- Log document schema mapping ---
+    # Firestore docs in `logs` look like:
+    #   { name, value, uid, params{ client{...}, utm_campaign, ... }, timestamp }
+    fields:
+      event_name: "name"
+      value: "value"
+      uid: "uid"
+      params: "params"
+      timestamp: "timestamp"
+
+    # Event-name constants used by the funnel engine.
+    log_names:
+      first_open: "first_open"
+      session_start: "session_start"
+      web_first_open: "first_visit"
+      initial_purchase: "rc_trial_start"
+      renewal: "purchase"
+      non_renewing_purchase: "rc_non_renewing_purchase"
+
+    # Names whose `value` encodes an A/B split test and must be exploded into
+    # one log per active variant.
+    ab_test_event_names:
+      - "[web] Activated split test"
+      - "Changed: Active split tests"
+
+    # --- Funnel UI defaults -
+    defaults:
+      first_event: "first_visit"
+      breakdown_param_key: "utm_campaign"
+      metric_events:
+        - "payment_completed"
+        - "sign_in_completed"
+        - "token_purchase_initiated"
+        - "subscription_cancelled"
+
+    # Source-performance (UTM breakdown + EUR revenue) settings.
+    source_performance:
+      enabled: true
+      allowed_first_events:
+        - "first_visit"
+        - "onboarding_started"
+      revenue_events:
+        - "payment_completed"
+
+  # --- Template for a second project ---
+  # another_project:
+  #   label: "Another App"
+  #   firestore_project_id: "another-firebase-project"
+  #   collection_name: "events"
+  #   credentials_path: "secrets/another.json"
+  #   timezone: "Europe/Warsaw"
+  #   fields: { event_name: "event", value: "val", uid: "user_id", params: "data", timestamp: "ts" }
+  #   log_names: { first_open: "app_open", session_start: "session", web_first_open: "page_view", initial_purchase: "trial", renewal: "renew", non_renewing_purchase: "one_time" }
+  #   ab_test_event_names: []
+  #   defaults: { first_event: "page_view", breakdown_param_key: "utm_campaign", metric_events: ["purchase"] }
+  #   source_performance: { enabled: false }

@@ -1,0 +1,16 @@
+{
+  "hosting": {
+    "public": "public",
+    "ignore": ["firebase.json", "**/.*", "**/node_modules/**"],
+    "rewrites": [
+      {
+        "source": "/api/**",
+        "run": { "serviceId": "funnel-standalone", "region": "europe-west1" }
+      },
+      {
+        "source": "**",
+        "run": { "serviceId": "funnel-standalone", "region": "europe-west1" }
+      }
+    ]
+  }
+}

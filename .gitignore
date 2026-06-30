@@ -1,0 +1,19 @@
+__pycache__/
+*.pyc
+.venv/
+venv/
+.env
+
+# Never commit credentials.
+secrets/
+
+# Real project config is environment-specific and may name private projects.
+# Only config/projects.example.yaml is committed as a template.
+config/projects.yaml
+
+# Local tooling / deploy state — project-identifying, not for a public repo.
+.firebaserc
+.firebase/
+.claude/
+
+START_HERE.md

@@ -1,0 +1,37 @@
+{% set source_data = source_performance_data %}
+<div class="mb-3"><small class="text-muted">Breakdown param: {{ source_data.breakdown_param_key }}</small></div>
+<table class="table table-striped">
+    <thead>
+        <tr>
+            <th>Source</th>
+            <th>Entries</th>
+            {% for event_name in source_data.metric_events %}<th>{{ event_name }}</th>{% endfor %}
+            <th>Revenue (EUR)</th>
+            <th>ARPU (EUR)</th>
+        </tr>
+    </thead>
+    <tbody>
+        {% for row in source_data.rows %}
+        <tr>
+            <td>{{ row.source }}</td>
+            <td>{{ row.entries }}</td>
+            {% for metric_value in row.metric_values %}
+                <td>{{ metric_value.count }} <span class="text-muted">({{ "%.1f"|format(metric_value.percent) }}%)</span></td>
+            {% endfor %}
+            <td>{{ "%.2f"|format(row.revenue) }}</td>
+            <td>{{ "%.2f"|format(row.arpu) }}</td>
+        </tr>
+        {% else %}
+        <tr><td colspan="{{ source_data.metric_events|length + 5 }}">No source rows found for selected filters.</td></tr>
+        {% endfor %}
+    </tbody>
+    <tfoot>
+        <tr>
+            <th>Total</th>
+            <th>{{ source_data.totals.entries }}</th>
+            {% for metric_value in source_data.totals_metric_values %}<th>{{ metric_value.count }}</th>{% endfor %}
+            <th>{{ "%.2f"|format(source_data.totals.revenue) }}</th>
+            <th>-</th>
+        </tr>
+    </tfoot>
+</table>
